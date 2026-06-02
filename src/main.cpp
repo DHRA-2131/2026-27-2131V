@@ -56,7 +56,8 @@ void move_intake(void*) {
 			else if (intake_control == -1) {
 				Intake.move(-127);
 			}
-			else { Intake.move(0);
+			else { 
+				Intake.move(0);
 			}
 		}
 		pros::delay(20);
