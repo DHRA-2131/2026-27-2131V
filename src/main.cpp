@@ -1,87 +1,11 @@
 #include "main.h"
+#include "2131V/odometry.hpp"
 #include "pros/apix.h"
 #include "pros/imu.hpp"
 #include "constants.h"
 #include "definitions.h"
-void move_forward(float dist, int power){
-	float target = DrivetrainL.get_position() + (dist / (M_PI * WHEEL_DIAMETER_IN)) * 360.0;
-	while(DrivetrainL.get_position() <= target){
-		DrivetrainL.move(power);
-		DrivetrainR.move(power);
-		pros::delay(20);
-	}
-	DrivetrainL.move(0);
-	DrivetrainR.move(0);
-}
+#include <cmath>
 
-void move_backward(float dist, int power){
-	float target = DrivetrainL.get_position() - (dist / (M_PI * WHEEL_DIAMETER_IN)) * 360.0;
-	while(DrivetrainL.get_position() >= target){
-		DrivetrainL.move(-power);
-		DrivetrainR.move(-power);
-		pros::delay(20);
-	}
-	DrivetrainL.move(0);
-	DrivetrainR.move(0);
-}
-
-void turn_left(float angle, int power){
-	float old_rotation = imu.get_rotation() - angle;
-	while(imu.get_rotation() >= old_rotation){
-		DrivetrainL.move(-power);
-		DrivetrainR.move(power);
-		pros::delay(20);
-	}
-	DrivetrainL.move(0);
-	DrivetrainR.move(0);
-}
-
-void turn_right(float angle, int power){
-	float old_rotation = imu.get_rotation() + angle;
-	while(imu.get_rotation() <= old_rotation){
-		DrivetrainL.move(power);
-		DrivetrainR.move(-power);
-		pros::delay(20);
-	}
-	DrivetrainL.move(0);
-	DrivetrainR.move(0);
-}
-/*
-void move_intake(void*) {
-	while (true) {
-		if (in_autonomous) {
-			if (intake_control == 1) {
-				Intake.move(127);
-			}
-			else if (intake_control == -1) {
-				Intake.move(-127);
-			}
-			else { 
-				Intake.move(0);
-			}
-		}
-		pros::delay(20);
-	}
-}
-
-void move_storage(void*) {
-	while (true) {
-		if (in_autonomous) {
-			if (storage_control == 1) {
-				Storage.move(127);
-			}
-			else if (storage_control == -1) {
-				Storage.move(-127);
-			}
-			else {
-				Storage.move(0);
-			}
-		}
-		pros::delay(20);
-	}
-}
-
-*/
 void initialize() {
 	imu.reset();
 	while(imu.is_calibrating()){
@@ -113,27 +37,6 @@ void autonomous() {
 
 	}
 	
-}
-void redrawscreen(){
-	pros::screen::erase();
-	if(driving_mode == 1){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 1, "Driving mode: arcade");
-	}
-	else if(driving_mode == 0){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 1, "Driving mode: tank");
-	}
-	if(autonomous_mode == 0){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 0, "Autonomous mode: none");
-	}
-	else if(autonomous_mode == 1){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 0, "Autonomous mode: right");
-	}
-	else if(autonomous_mode == -1){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 0, "Autonomous mode: left");
-	}
-	else if(autonomous_mode == 2){
-		pros::screen::print(pros::E_TEXT_MEDIUM, 0, "Autonomous mode: skills");
-	}
 }
 
 void opcontrol(){
@@ -190,7 +93,7 @@ void opcontrol(){
 			}
 			redrawscreen();
 		}
-		
+		update_position();
 		pros::delay(20);
 	}
 }
