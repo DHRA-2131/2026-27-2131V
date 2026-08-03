@@ -5,6 +5,7 @@ void update_position(){
     new_rotation = TrackingMotor.get_position(); //How much the tracking motor has rotated
     double change_in_heading = (new_heading - old_heading) * DEG_TO_RAD;
     double average_heading = ((new_heading + old_heading) / 2) * DEG_TO_RAD;
+    double arc_length = (change_in_heading) * WHEEL_DIAMETER_IN;
     double circle_radius = arc_length / change_in_heading;
     double chord_length = circle_radius * 2 * sin(change_in_heading / 2);
     double change_x = chord_length * cos(average_heading);
