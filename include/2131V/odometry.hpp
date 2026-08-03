@@ -4,6 +4,7 @@ void update_position(){
     new_heading = imu.get_heading(); //Where robot is facing
     new_rotation = TrackingMotor.get_position(); //How much the tracking motor has rotated
     double change_in_heading = new_heading - old_heading;
+    double average_heading = (new_heading + old_heading) / 2;
     double arc_length = (new_rotation - old_rotation) * DEG_TO_RAD * WHEEL_DIAMETER_IN / 2;
     double circle_radius = arc_length / change_in_heading;
     double chord_length = circle_radius * 2 * sin(change_in_heading / 2);
