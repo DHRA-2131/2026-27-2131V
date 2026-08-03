@@ -1,5 +1,5 @@
 #include "main.h"
-#include "defintions.h"
+#include "definitions.h"
 #include "constants.h"
 #include "2131V/odometry.hpp"
 void move_forward(float dist, int power){

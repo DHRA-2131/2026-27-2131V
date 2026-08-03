@@ -1,5 +1,5 @@
 #include "main.h"
-#include "defintions.h"
+#include "definitions.h"
 #include "constants.h"
 void redrawscreen(){
 	pros::screen::erase();
