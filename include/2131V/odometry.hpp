@@ -1,3 +1,4 @@
+#pragma once
 #include "constants.h"
 #include "definitions.h"
 void update_position(){

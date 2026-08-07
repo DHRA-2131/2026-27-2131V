@@ -62,10 +62,13 @@ void opcontrol(){
 			DrivetrainR.move(dir - turn);
 		}	
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-			Lift.move(127);
+			Lift.move(20);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-			Lift.move(-127);
+			Lift.move(-10);
+		}
+		else{
+			Lift.move(0);
 		}
 		
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
@@ -73,6 +76,9 @@ void opcontrol(){
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
 			ColorSwitcher.move(-127);
+		}
+		else{
+			ColorSwitcher.move(0);
 		}
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT) == 1){
