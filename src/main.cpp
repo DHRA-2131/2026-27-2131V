@@ -49,6 +49,7 @@ void opcontrol(){
 	DrivetrainR.set_gearing(pros::E_MOTOR_GEARSET_36);
 	DrivetrainL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	DrivetrainR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	Lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	redrawscreen();
 	while(true){
 		if(driving_mode == 0){ //Tank control
