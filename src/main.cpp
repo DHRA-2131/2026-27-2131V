@@ -1,7 +1,8 @@
 #include "main.h"
-#include "2131V/odometry.hpp"
-#include "2131V/screen.hpp"
-#include "2131V/autonomous.hpp"
+#include "odometry.hpp"
+#include "screen.hpp"
+#include "autonomous.hpp"
+#include "drivetrain.hpp"
 #include "pros/apix.h"
 #include "pros/imu.hpp"
 #include "constants.h"
@@ -32,7 +33,7 @@ void autonomous() {
 	}
 	else if(autonomous_mode == 0){
 		//No autonomous (move forward 1)
-		move_forward(1, 127);
+		drivetrain::move_forward(1, 127);
 	}
 	else if(autonomous_mode == 2){
 		//Autonomous skills
@@ -59,14 +60,14 @@ void opcontrol(){
 		else if(driving_mode == 1){ //Arcade control
 			double dir = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * driving_speed / 127;
 			double turn = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) * driving_speed / 127;
-			DrivetrainL.move(dir + turn);
-			DrivetrainR.move(dir - turn);
+			DrivetrainL.move(dir - turn);
+			DrivetrainR.move(dir + turn);
 		}	
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-			Lift.move(20);
+			Lift.move(30);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-			Lift.move(-10);
+			Lift.move(-20);
 		}
 		else{
 			Lift.move(0);
@@ -114,10 +115,6 @@ void opcontrol(){
 			else if(driving_mode == 1){
 				driving_mode = 0;
 			}
-			redrawscreen();
-		}
-		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)){ //This is temporary for testing the odometry
-			update_position();
 			redrawscreen();
 		}
 		pros::delay(20);
