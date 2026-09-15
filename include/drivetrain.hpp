@@ -1,5 +1,5 @@
 #pragma once
-class drivetrain{
+class Drivetrain{
     private:
         double target;
     public:

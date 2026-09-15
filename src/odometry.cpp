@@ -1,8 +1,8 @@
 #include "odometry.hpp"
-#include "definitions.h"
-#include "constants.h"
+#include "constants.hpp"
+#include "definitions.hpp"
 
-void odometry::update_position(){
+void Odometry::update_position(){
     new_heading = imu.get_heading(); //Where robot is facing
     new_rotation = TrackingMotor.get_position(); //How much the tracking motor has rotated
     double change_in_heading = (new_heading - old_heading) * DEG_TO_RAD;

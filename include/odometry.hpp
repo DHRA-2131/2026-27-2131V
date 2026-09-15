@@ -1,7 +1,5 @@
 #pragma once
-#include "definitions.h"
-#include "constants.h"
-class odometry{
+class Odometry{
     private:
         double change_x;
         double change_y;
