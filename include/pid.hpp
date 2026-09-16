@@ -11,5 +11,5 @@ class PID{
     public:
         PID(double p, double i, double d, double integral_start = 5.0);
         double update(double error);
-        double reset();
+        void reset();
 };

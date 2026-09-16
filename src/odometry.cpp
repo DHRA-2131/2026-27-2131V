@@ -4,7 +4,7 @@
 
 void Odometry::update_position(){
     new_heading = imu.get_heading(); //Where robot is facing
-    new_rotation = TrackingMotor.get_position(); //How much the tracking motor has rotated
+    new_rotation = (drivetrainL.get_position() + drivetrainR.get_position() / 2); //How much the tracking motor has rotated
     double change_in_heading = (new_heading - old_heading) * DEG_TO_RAD;
     double average_heading = ((new_heading + old_heading) / 2) * DEG_TO_RAD;
     double arc_length = (new_rotation - old_rotation) * WHEEL_DIAMETER_IN;

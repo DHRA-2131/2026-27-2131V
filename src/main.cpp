@@ -26,7 +26,7 @@ void autonomous() {
 	}
 	else if(autonomous_mode == 0){
 		//No autonomous (move forward 1)
-		drivetrain.move_forward(1, 127);
+		drivetrain.move(1, 127);
 	}
 	else if(autonomous_mode == 2){
 		//Autonomous skills
@@ -39,11 +39,11 @@ void opcontrol(){
 	//pros::Task storage_task(move_storage, nullptr);
 	//pros::Task intake_task(move_intake, nullptr);
 	in_autonomous = false;
-	DrivetrainL.set_gearing(pros::E_MOTOR_GEARSET_36);
-	DrivetrainR.set_gearing(pros::E_MOTOR_GEARSET_36);
-	DrivetrainL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	DrivetrainR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	Lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	drivetrainL.set_gearing(pros::E_MOTOR_GEARSET_36);
+	drivetrainR.set_gearing(pros::E_MOTOR_GEARSET_36);
+	drivetrainL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	drivetrainR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	screen.redrawscreen();
 	while(imu.is_calibrating()){
 		screen.print("Initializing...");
@@ -51,33 +51,33 @@ void opcontrol(){
 	}
 	while(true){
 		if(driving_mode == 0){ //Tank control
-			DrivetrainL.move(master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * driving_speed / 127);
-			DrivetrainR.move(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) * driving_speed / 127);
+			drivetrainL.move(master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * driving_speed / 127);
+			drivetrainR.move(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y) * driving_speed / 127);
 		}
 		else if(driving_mode == 1){ //Arcade control
 			double dir = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * driving_speed / 127;
 			double turn = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) * driving_speed / 127;
-			DrivetrainL.move(dir - turn);
-			DrivetrainR.move(dir + turn);
+			drivetrainL.move(dir - turn);
+			drivetrainR.move(dir + turn);
 		}	
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-			Lift.move(30);
+			lift.move(30);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-			Lift.move(-20);
+			lift.move(-20);
 		}
 		else{
-			Lift.move(0);
+			lift.move(0);
 		}
 		
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-			ColorSwitcher.move(127);
+			colorSwitcher.move(127);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-			ColorSwitcher.move(-127);
+			colorSwitcher.move(-127);
 		}
 		else{
-			ColorSwitcher.move(0);
+			colorSwitcher.move(0);
 		}
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT) == 1){
