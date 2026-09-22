@@ -26,4 +26,5 @@ void Screen::redrawscreen(){
 	else if(autonomous_mode == 2){
 		print("Autonomous mode: skills");
 	}
+	
 }
