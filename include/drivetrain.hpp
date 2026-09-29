@@ -10,4 +10,6 @@ class Drivetrain{
         void turn_right(double target);
         void move(int powerL, int powerR);
         void stop();
+        void turn_to_heading(double target_heading);
+        void goto_xy(double target_x, double target_y);
 };

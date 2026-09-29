@@ -3,6 +3,7 @@
 #include "definitions.hpp"
 #include "constants.hpp"
 #include "odometry.hpp"
+#include <cmath>
 
 PID drivePID(3.0, 0, 0); // PID controller for driving forward/backward
 PID turnPID(1.0, 0, 0);  // PID controller for turning left/right
@@ -113,6 +114,41 @@ void Drivetrain::turn_left(double target){
 }
 
 void Drivetrain::turn_right(double target){
-	//When turning right, use turn_left() but use a negative value.
+	//When turning right, use turn_left() but with a negative value.
 	drivetrain.turn_left(-target);
+}
+
+void Drivetrain::turn_to_heading(double target){
+	//Multiply the target by the IMU drift scale factor
+	target *= IMU_DRIFT_SCALE_FACTOR;
+
+	//Subtract the current heading from the target to get the angle we need to move
+	double angle = target - imu.get_heading();
+
+	//Wrap the angle to [-180,180]
+	while (angle > 180) {angle -= 360;}
+    while (angle < -180) {angle += 360;}
+
+	//Turn to that angle
+	turn_left(angle);
+}
+
+void Drivetrain::goto_xy(double target_x, double target_y){
+	//This function will take an x and y coordinate, turn toward it, and move to those coordinates.
+
+	//Find the distance we need to move on the x and y coordinates
+	double dist_x = target_x - odometry.pos_x;
+	double dist_y = target_y - odometry.pos_y;
+
+	//Calculate the angle we need to turn to by taking the arctangent of y/x
+	double target_angle = atan(dist_y / dist_x);
+
+	//Turn to that angle
+	turn_to_heading(target_angle);
+	
+	//Calculate the distance we need to move to reach the target by taking the secant (1/cos) of the angle and multiplying by the x distance
+	double target_distance = (1 / cos(target_angle)) * dist_x;
+
+	//Move that distance
+	move_forward(target_distance);
 }
