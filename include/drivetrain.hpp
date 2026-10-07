@@ -11,5 +11,6 @@ class Drivetrain{
         void move(int powerL, int powerR);
         void stop();
         void turn_to_heading(double target_heading);
+        bool check_for_obstacles(double target_x, double target_y, double target_angle);
         void goto_xy(double target_x, double target_y);
 };

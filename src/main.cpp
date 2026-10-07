@@ -44,6 +44,7 @@ void opcontrol(){
 	drivetrainL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	drivetrainR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	claw.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	screen.redrawscreen();
 	while(imu.is_calibrating()){
 		screen.print("Initializing...");
@@ -70,8 +71,14 @@ void opcontrol(){
 			lift.move(0);
 		}
 		
-		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-			colorSwitcher.move(127);
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+			if(!claw_grabbing){
+				claw.move(-50);
+				claw_grabbing = true;
+			} else {
+				claw.move(50);
+				claw_grabbing = false;
+			}
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
 			colorSwitcher.move(-127);
@@ -79,6 +86,8 @@ void opcontrol(){
 		else{
 			colorSwitcher.move(0);
 		}
+
+
 
 		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_RIGHT) == 1){
 			driving_speed = 127;

@@ -6,6 +6,7 @@
 #include "drivetrain.hpp"
 #include "pid.hpp"
 extern bool in_autonomous;
+extern bool claw_grabbing;
 extern float driving_speed;
 extern int autonomous_mode;
 extern int driving_mode;
@@ -15,8 +16,12 @@ extern pros::MotorGroup drivetrainR;
 extern pros::MotorGroup lift;
 extern pros::Motor colorSwitcher;
 extern pros::Motor trackingMotor;
+extern pros::Motor claw;
+extern pros::Motor clawSpinner;
 extern pros::IMU imu;
 extern Screen screen;
 extern Drivetrain drivetrain;
 extern Odometry odometry;
 extern PID pid;
+extern double pos_x;
+extern double pos_y;

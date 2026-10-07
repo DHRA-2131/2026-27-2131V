@@ -5,8 +5,8 @@ class Field{
         //(0, 0) is the left corner of the red side
         static constexpr double obstacles[4][2][2] = {
             {{9,13},{0, 4}}, //Match loaders
-            {{20,25.5},{18.5,24}}, //Scoring pins
-            {{18.5,24},{20,25.5}},
+            {{44,49.5},{18.5,24}}, //Scoring pins
+            {{18.5,24},{44,49.5}},
             {{67.375, 73.125},{67.375, 73.125}} //Center pin
         };
         //Format: {red: {{x, y}, {x, y}}, blue: {{x, y}, {x, y}}}
