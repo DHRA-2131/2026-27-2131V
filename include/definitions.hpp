@@ -7,6 +7,8 @@
 #include "pid.hpp"
 extern bool in_autonomous;
 extern bool claw_grabbing;
+extern bool claw_spun;
+extern bool updated;
 extern float driving_speed;
 extern int autonomous_mode;
 extern int driving_mode;

@@ -7,7 +7,8 @@
 #include <cmath>
 
 PID drivePID(3.0, 0, 0); // PID controller for driving forward/backward
-PID turnPID(1.0, 0, 0);  // PID controller for turning left/right
+PID turnPID(1, 0, 0);  // PID controller for turning left/right
+
 void Drivetrain::move(int powerL, int powerR){
     drivetrainL.move(powerL);
     drivetrainR.move(powerR);
@@ -32,7 +33,7 @@ void Drivetrain::move_forward(double target){
 
 	while(true){ 
 		//Get the average of the two motor group positions and multiply by the constant to get how far the robot has moved.
-		double drive_pos = (drivetrainL.get_position() + drivetrainR.get_position() / 2) * DRIVE_DIST_PER_DEG;
+		double drive_pos = (drivetrainL.get_position() + drivetrainR.get_position()) / 2.0 * DRIVE_DIST_PER_DEG;
 
 		//Calculate the how far away the robot is from the target
 		double error = target - drive_pos;
@@ -44,7 +45,7 @@ void Drivetrain::move_forward(double target){
 		drivetrain.move(output, output);
 
 		//Check if the error is small enough
-		if(std::abs(error) < 1){
+		if(std::abs(error) < 1.0){
 
 			//Increment the attempt by 1;
 			attempt++;
@@ -75,11 +76,7 @@ void Drivetrain::turn_left(double target){
 	
 	//Reset the PID controller
 	turnPID.reset(); 
-
-	//Wrap the target angle to [-180,180]
-	while (target > 180) {target -= 360;}
-    while (target < -180) {target += 360;}
-
+	
 	//Number of attempts to get the position to 0 while past the threshold.
 	int attempt = 0;
 
@@ -90,6 +87,10 @@ void Drivetrain::turn_left(double target){
 		//Calculate the how far away the robot is from the target
 		double error = target - heading;
 
+		//Wrap the error to [-180,180]
+		while(error > 180.0) {error -= 360.0;}
+		while(error < -180.0) {error += 360.0;}
+
 		//Calculate the output using the PID controller
 		double output = turnPID.update(error);
 
@@ -97,7 +98,7 @@ void Drivetrain::turn_left(double target){
 		drivetrain.move(-output, output);
 
 		//Check if the error is small enough
-		if(std::abs(error) < 1){
+		if(std::abs(error) < 1.0){
 
 			//Increment the attempt by 1
 			attempt++;
@@ -131,8 +132,8 @@ void Drivetrain::turn_to_heading(double target){
 	double angle = target - imu.get_heading();
 
 	//Wrap the angle to [-180,180]
-	while (angle > 180) {angle -= 360;}
-    while (angle < -180) {angle += 360;}
+	while(angle > 180.0) {angle -= 360.0;}
+    while(angle < -180.0) {angle += 360.0;}
 
 	//Turn to that angle
 	turn_left(angle);
@@ -141,37 +142,46 @@ void Drivetrain::turn_to_heading(double target){
 bool Drivetrain::check_for_obstacles(double target_x, double target_y, double target_angle){
 	//This function will check if an obstacle is in the way of the robot when it is trying to reach specific coordinates.
 
-	//Calculate the slope (m) of the line that the robot is travelling on
-	double m = (target_y - pos_y) / (target_x - pos_x);
+	//Convert to radians
+	double angle = target_angle * DEG_TO_RAD;
 
-	//The equation of the line is y = m(x-pos_x) + pos_y (point-slope form)
-	//We need to convert it to point-intercept form to make calculations easier. (y=mx+b, b is the y-intercept)
-	//b = m*pos_x + pos_y
-	double b = m * pos_x + pos_y;
+	//Calculate the minimum and maximum x and y positions with a small buffer to ensure that the robot does not hit an obstacle.
+	double extent_x = std::abs(std::cos(angle)) * (ROBOT_LENGTH_IN / 2.0)
+		+ std::abs(std::sin(angle)) * (ROBOT_WIDTH_IN / 2) + 0.5;
+	double extent_y = std::abs(std::sin(angle)) * (ROBOT_LENGTH_IN / 2.0)
+			+ std::abs(std::cos(angle)) * (ROBOT_WIDTH_IN / 2) + 0.5;
 
-	//Check if the robot's path will collide with an obstacle
-	for(int i = 0; i <= 4; i++){
-		//Check if the x-values of an obstacle are within the x-values of the endpoints of the move
-		if(
-			//Check if the lower bound of the obstacle is within the two endpoints of the move. 
-			//We need to extend the bounds of the obstacle to account for the fact that the robot has width, and add a small buffer to be safe.
-			(Field::obstacles[i][1][1] - (ROBOT_WIDTH_IN / 2) * (1 / cos(target_angle * DEG_TO_RAD)) - .5 >= target_x &&
-			Field::obstacles[i][1][1] + (ROBOT_WIDTH_IN / 2) * (1 / cos(target_angle * DEG_TO_RAD)) + .5 <= pos_x) ||
-			//Do the same thing with the upper bound
-			(Field::obstacles[i][1][2] - (ROBOT_WIDTH_IN / 2) * (1 / cos(target_angle * DEG_TO_RAD)) - .5 >= target_x &&
-			Field::obstacles[i][1][2] + (ROBOT_WIDTH_IN / 2) * (1 / cos(target_angle * DEG_TO_RAD)) + .5 <= pos_x)
-		){
-			if(
-				//Do the same thing for the y coordinates, but plug the x coordinates of the obstacles into the line equation
-				(Field::obstacles[i][2][1] - (ROBOT_WIDTH_IN / 2) * (1 / sin(target_angle * DEG_TO_RAD)) - .5 >= m * Field::obstacles[i][1][1] + b &&
-				Field::obstacles[i][2][1] + (ROBOT_WIDTH_IN / 2) * (1 / sin(target_angle * DEG_TO_RAD)) + .5 <= m * Field::obstacles[i][1][2] + b) ||
-				(Field::obstacles[i][2][2] - (ROBOT_WIDTH_IN / 2) * (1 / sin(target_angle * DEG_TO_RAD)) - .5 >= m * Field::obstacles[i][1][1] + b &&
-				Field::obstacles[i][2][2] + (ROBOT_WIDTH_IN / 2) * (1 / sin(target_angle * DEG_TO_RAD)) + .5 <= m * Field::obstacles[i][1][2] + b)
-			){
+	//Calculate the distance moved by the robot
+	double distance = hypot(target_x - pos_x, target_y - pos_y);
+	if (distance <= 0.0) {
+		return false;
+	}
+
+	//Calculate the amount of steps that the code will take to make sure that the robot will not collide
+	int steps = static_cast<int>(std::ceil(distance));
+	if (steps <= 0) {
+		return false;
+	}
+
+	for(int step = 0; step <= steps; step++){
+		//Progress until robot is done checking
+		double progress = static_cast<double>(step) / steps;
+	
+		//Current x and y position that we are checking
+		double x = pos_x + (target_x - pos_x) * progress;
+		double y = pos_y + (target_y - pos_y) * progress;
+		
+		//Check if the robot's path will collide with an obstacle
+		for(int i = 0; i < 4; i++){
+			if(x >= Field::obstacles[i][0][0] - extent_x
+				&& x <= Field::obstacles[i][0][1] + extent_x
+				&& y >= Field::obstacles[i][1][0] - extent_y
+				&& y <= Field::obstacles[i][1][1] + extent_y){
 				return true;
 			}
 		}
 	}
+	return false;
 }
 
 void Drivetrain::goto_xy(double target_x, double target_y){
@@ -182,15 +192,15 @@ void Drivetrain::goto_xy(double target_x, double target_y){
 	double dist_y = target_y - pos_y;
 
 	//Calculate the angle we need to turn to by taking the arctangent of y/x
-	double target_angle = atan(dist_y / dist_x) * RAD_TO_DEG;
+	double target_angle = atan2(dist_y, dist_x) * RAD_TO_DEG;
 
 	//Check if there are obstacles. If not, take a straight line path to get there.
-	if(check_for_obstacles(target_x, target_y, target_angle)){
+	if(!check_for_obstacles(target_x, target_y, target_angle)){
 		//Turn to that angle
 		turn_to_heading(target_angle);
 		
 		//Calculate the distance we need to move to reach the target by taking the secant (1/cos) of the angle and multiplying by the x distance
-		double target_distance = (1 / cos(target_angle)) * dist_x;
+		double target_distance = (1.0 / std::cos(target_angle * DEG_TO_RAD)) * dist_x;
 
 		//Move that distance
 		move_forward(target_distance);

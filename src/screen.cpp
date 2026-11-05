@@ -4,9 +4,13 @@
 #include "screen.hpp"
 #include <string>
 void Screen::print(std::string text){
-    pros::screen::print(pros::E_TEXT_MEDIUM, 1, text.c_str());
+    pros::screen::print(pros::E_TEXT_MEDIUM, line, text.c_str());
+	line++;
 }
-void Screen::redrawscreen(){
+void Screen::redraw(){
+
+	//Set line counter to 1
+	line = 1;
 
 	//Clear the screen
 	pros::screen::erase();
@@ -33,4 +37,5 @@ void Screen::redrawscreen(){
 		print("Autonomous mode: skills");
 	}
 	
+	print("Position: (" + std::to_string(pos_x) + ", " + std::to_string(pos_y) + ")");
 }
