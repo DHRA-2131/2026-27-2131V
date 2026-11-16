@@ -1,9 +1,7 @@
-#include "main.h"
 #include "definitions.hpp"
 #include "pros/apix.h"
 #include "pros/imu.hpp"
 #include "constants.hpp"
-#include <cmath>
 #include <string>
 
 void initialize() {
@@ -65,7 +63,7 @@ void opcontrol(){
 		}	
 
 		//If either joystick is at 0 (with a small buffer), update the odometry.
-		if(std::abs(pros::E_CONTROLLER_ANALOG_LEFT_X) < 0.5 || std::abs(pros::E_CONTROLLER_ANALOG_LEFT_Y) < 0.5){
+		if(fabs(pros::E_CONTROLLER_ANALOG_LEFT_X) < 0.5 || fabs(pros::E_CONTROLLER_ANALOG_LEFT_Y) < 0.5){
 			if(!updated){
 				odometry.update_position();
 				updated = true;

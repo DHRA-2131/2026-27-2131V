@@ -7,6 +7,8 @@ class Odometry{
         double old_rotation;
         double new_heading;
         double new_rotation;
+        double old_left;
+        double old_right;
     public:
         Odometry();
         void update_position();

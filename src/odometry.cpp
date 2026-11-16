@@ -1,11 +1,12 @@
 #include "odometry.hpp"
 #include "constants.hpp"
 #include "definitions.hpp"
-#include <cmath>
 
 Odometry::Odometry() : change_x(0.0), change_y(0.0), old_heading(0.0), old_rotation(0.0), new_heading(0.0), new_rotation(0.0) {
     old_heading = imu.get_heading();
     old_rotation = imu.get_rotation();
+    old_left = 0.0;
+    old_right = 0.0;
 }
 
 void Odometry::update_position(){
@@ -15,12 +16,16 @@ void Odometry::update_position(){
     new_heading = imu.get_heading();
     new_rotation = imu.get_rotation();
 
+    //Get the positions of the left and right motors
+    double left = drivetrainL.get_position();
+    double right = drivetrainR.get_position();
+
     //See how far the robot has moved by averaging the position of the left and right drivetrain and multiplying by the constant. This is represented as an arc.
-    double distance_moved = ((drivetrainL.get_position() + drivetrainR.get_position()) / 2.0) * DRIVE_DIST_PER_DEG;
+    double distance_moved = ((left - old_left) + (right - old_right)) / 2.0 * DRIVE_DIST_PER_DEG;
 
     //Convert these to radians for use in the trig functions.
     //Calculate how much the heading has changed since the start of the move (this will be a small number)
-    double change_in_heading = new_heading - old_heading * DEG_TO_RAD;
+    double change_in_heading = (new_heading - old_heading) * DEG_TO_RAD;
     while (change_in_heading > M_PI) {change_in_heading -= (2.0 * M_PI);}
     while (change_in_heading < -M_PI) {change_in_heading += (2.0 * M_PI);}
 
@@ -38,7 +43,7 @@ void Odometry::update_position(){
         //Calculate the length of a chord between the two endpoints of the arc
         double chord_length = circle_radius * 2.0 * std::sin(change_in_heading / 2.0);
 
-        //Calculate vectors representing the change in x and y
+        //Calculate the change in x and y
         change_x = chord_length * std::cos(average_heading);
         change_y = chord_length * std::sin(average_heading);
     }
@@ -52,4 +57,6 @@ void Odometry::update_position(){
     old_heading = new_heading;
     change_x = 0.0;
     change_y = 0.0;
+    old_left = left;
+    old_right = right;
 }
